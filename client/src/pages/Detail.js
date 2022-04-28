@@ -24,7 +24,7 @@ function Detail() {
   // query the graphql db to get all product info
   const { loading, data } = useQuery(QUERY_PRODUCTS);
   // destructure "products" from our global state
-  const { products } = state;
+  const { products, cart } = state;
 
   // this use effect will run anytime the dependencies change it is initialized by the changing
   // of the data dependency in this case which will initially be undefined untill the query completes
@@ -46,9 +46,26 @@ function Detail() {
 
   // ADD TO CART FUNCTION
   const addToCart = () => {
+    const itemInCart = cart.find((cartItem) => cartItem._id === id);
+
+    if(itemInCart) { 
+      dispatch({
+        type: UPDATE_CART_QUANTITY,
+        _id: id,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });  
+    }else{ 
     dispatch({
       type: ADD_TO_CART,
       product: { ...currentProduct, purchaseQuantity: 1 }
+    });
+  }
+  };
+
+  const removeFromCart = () => {
+    dispatch({
+      type: REMOVE_FROM_CART,
+      _id: currentProduct._id
     });
   };
 
@@ -66,7 +83,14 @@ function Detail() {
           <p>
             <strong>Price:</strong>${currentProduct.price}{' '}
             <button onClick={addToCart}>Add to Cart</button>
-            <button>Remove from Cart</button>
+            
+            <button
+            disabled={!cart.find(p => p._id === currentProduct._id)}
+            onClick={removeFromCart}
+            >
+              Remove from Cart
+              
+              </button>
           </p>
 
           <img
