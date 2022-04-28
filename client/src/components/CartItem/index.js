@@ -1,6 +1,7 @@
 import React from "react";
 
 const CartItem = ({ item }) => {
+    console.log(item);
   return (
       <div className="flex-row">
           <div>

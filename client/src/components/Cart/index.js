@@ -16,6 +16,15 @@ const Cart = () => {
       dispatch({type: TOGGLE_CART});
   };
 
+  function calculateTotal() {
+      let sum = 0;
+      state.cart.forEach(item => {
+          sum += item.price * item.purchaseQuantity;
+      });
+      // toFixed will set the number of digits to appear after decimal point
+      return sum.toFixed(2);
+  };
+
   // display cart or cart symbol depending on cartOpen Property
   if (!state.cartOpen) {
       return (
@@ -28,16 +37,20 @@ const Cart = () => {
   }
 
 
+
+
     return ( 
         <div className='cart'>
             <div className='close' onClick={toggleCart}>[close]</div>
             <h2>Shopping Cart</h2>
+            {state.cart.length ? (
             <div>
-                <CartItem item={{name:'Camera', image: 'camera.jpg', price:5, purchaseQuantity:3}} />
-                <CartItem item={{name:'Soap', image:'soap.jpg', price:6, purchaseQuantity:4}} />
+              {state.cart.map(item => ( 
+                  <CartItem key={item._id} item={item} />
+            ))}
 
                 <div className='flex-row space-between'>
-                    <strong>Total: $0</strong>
+                    <strong>Total: ${calculateTotal()}</strong>
                     {
                         Auth.loggedIn() ? 
                         <button>
@@ -48,6 +61,15 @@ const Cart = () => {
                     }
                 </div>
             </div>
+                ):(
+                    <h3>
+                        <span role="img" aria-label="shocked">
+                        😱   
+                        </span>
+                        you havent added anything to your cart yet!
+                    </h3>
+
+                )}
         </div>
     );
 };
