@@ -3,6 +3,7 @@ import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions'
 import { useQuery } from '@apollo/client';
 import { QUERY_CATEGORIES } from '../../utils/queries';
 import { useStoreContext } from '../../utils/GlobalState';
+import { idbPromise } from '../../utils/helpers';
 
 function CategoryMenu() {
   // this function is using the useContext hook
@@ -10,7 +11,7 @@ function CategoryMenu() {
   // destructure categories from the state object
   const { categories } = state;
   // query to get category data
-  const { data: categoryData } = useQuery(QUERY_CATEGORIES);
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
 
   useEffect(() => {
      // if categoryData exists or has changed from the response of useQuery, then run dispatch()
@@ -19,9 +20,21 @@ function CategoryMenu() {
     dispatch({
       type: UPDATE_CATEGORIES,
       categories: categoryData.categories
-    });  
-    } 
-  }, [categoryData, dispatch]);
+    }); 
+    
+    categoryData.categories.forEach(category => {
+      idbPromise('categories', 'put', category);
+     });
+     // if loading value from useQuery is undefined get data from indexedDb and add it to the global store
+    } else if (!loading) {
+      idbPromise('categories', 'get').then(categories => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories
+        });
+      });
+    }
+  }, [categoryData, loading, dispatch]);
 
   // function to set state with each click
   const handleClick = id => {

@@ -13,6 +13,7 @@ import {
 import { QUERY_PRODUCTS } from '../utils/queries';
 import spinner from '../assets/spinner.gif';
 import Cart from '../components/Cart';
+import { idbPromise } from '../utils/helpers';
 
 function Detail() {
   // bring in function that holds useContext
@@ -39,6 +40,18 @@ function Detail() {
       dispatch({
         type: UPDATE_PRODUCTS,
         products: data.products
+      });
+
+      data.products.forEach((product) => {
+        idbPromise('products','put', product);
+      });
+    }
+    else if (!loading) {
+      idbPromise('products','get').then((indexedProducts) => {
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts
+        });
       });
     }
     // dependency array

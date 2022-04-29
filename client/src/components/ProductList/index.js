@@ -7,6 +7,7 @@ import { useStoreContext } from '../../utils/GlobalState';
 import ProductItem from '../ProductItem';
 import { QUERY_PRODUCTS } from '../../utils/queries';
 import spinner from '../../assets/spinner.gif';
+import { idbPromise } from '../../utils/helpers';
 
 function ProductList() {
   // use the useStoreContext function to get global state and dispatch function for changing data
@@ -18,14 +19,28 @@ function ProductList() {
 
   // use the useEffect hook to update products array
   useEffect(() => {
-    // useStoreContext will run again after updating the globalState it wil then give us the data neede to display products to the page
+    // if data is there send it to global state
    if (data) {
      dispatch({
        type: UPDATE_PRODUCTS,
        products: data.products
      });
-   }
-  }, [data, dispatch]);
+   // lets also take each product and save it to indexedDb using the helper function
+   data.products.forEach((product) => {
+     idbPromise('products','put', product);
+   })
+   // if loading value from useQuery is undefined get data from indexedDb and add it to the global store
+  }else if (!loading) {
+    // since were offline get all of the data from the products store
+    idbPromise('products', 'get').then((products) => {
+      // use retrieved data to set global state for offline browsing
+      dispatch({
+        type: UPDATE_PRODUCTS,
+        products: products
+      });
+    })
+  }
+  }, [data, loading, dispatch]);
 
 
 
