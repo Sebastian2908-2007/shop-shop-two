@@ -50,7 +50,7 @@ sebastiancrespin279@gmail.com
 https://protected-temple-05501.herokuapp.com/
 
 ## Sample Picture
-
+![Screenshot (249)](https://user-images.githubusercontent.com/77297220/166323242-60478fd7-a670-42c2-b5a7-bd61fba463c9.png)
 
 
 ## License
