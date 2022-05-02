@@ -56,6 +56,8 @@ const resolvers = {
     checkout: async (parent,args, context) => {
       // initialize empty line items array
       const line_items = [];
+      // this will get the referer url so we can use it f;or redirect upon a successfull transaction
+      const url = new URL(context.headers.referer);
       const order = new Order({ products: args.products });
       const { products } = await order.populate('products').execPopulate();
       // add for loop to generate stripe products and id's as well as adding them to the line_items array
@@ -63,8 +65,9 @@ const resolvers = {
         // generate product id
         const product = await stripe.products.create({
           name: products[i].name,
-
-          description: products[i].description
+          description: products[i].description,
+          // the below images do not work in development!
+          images: [`${url}/images/${products[i].image}`]
         });
 
         // generate price id using the product id
@@ -86,8 +89,8 @@ const resolvers = {
         payment_method_types: ['card'],
         line_items,
         mode: 'payment',
-        success_url: 'https://example.com/success?session_id={CHECKOUT_SESSION_ID}',
-        cancel_url: 'https://example.com/cancel'
+        success_url: `${url}/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${url}`
       });
       return { session: session.id };
     }
