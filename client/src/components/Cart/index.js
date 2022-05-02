@@ -12,10 +12,12 @@ import { loadStripe } from '@stripe/stripe-js';
 // this apollo hook lets us use hooks at times other than on load like a button click for instance
 import { useLazyQuery } from '@apollo/client';
 
+// client side test api key for stripe
 const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
 const Cart = () => {
   const [state,dispatch] = useStoreContext();
+  // useLazyQuery for doing our checkout query on button click
   const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
   // function to check if there's anything in the state's cart property on load. If not, we'll retrieve data from the IndexedDB cart object store. 
@@ -60,7 +62,7 @@ const Cart = () => {
        variables: { products: productIds }
       });
   }
-
+// if data var changes we will be redirected to stripe checkout page
   useEffect(() => {
       if (data) {
           stripePromise.then((res) => {
